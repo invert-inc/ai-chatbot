@@ -1,6 +1,7 @@
 import type { NextAuthConfig } from 'next-auth';
 
 export const authConfig = {
+  trustHost: true, // ADDED BY Suhas
   pages: {
     signIn: '/login',
     newUser: '/',
@@ -16,6 +17,14 @@ export const authConfig = {
       const isOnRegister = nextUrl.pathname.startsWith('/register');
       const isOnLogin = nextUrl.pathname.startsWith('/login');
 
+      // Check for invertbio.com email domain
+      const hasValidEmail = auth?.user?.email?.endsWith('@invertbio.com') ?? false;
+
+      if (isLoggedIn && !hasValidEmail) {
+        // Redirect non-invertbio users to login page
+        return Response.redirect(new URL('/login', nextUrl as unknown as URL));
+      }
+
       if (isLoggedIn && (isOnLogin || isOnRegister)) {
         return Response.redirect(new URL('/', nextUrl as unknown as URL));
       }
@@ -25,11 +34,11 @@ export const authConfig = {
       }
 
       if (isOnChat) {
-        if (isLoggedIn) return true;
+        if (isLoggedIn && hasValidEmail) return true;
         return false; // Redirect unauthenticated users to login page
       }
 
-      if (isLoggedIn) {
+      if (isLoggedIn && hasValidEmail) {
         return Response.redirect(new URL('/', nextUrl as unknown as URL));
       }
 
