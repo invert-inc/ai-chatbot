@@ -5,7 +5,7 @@ import { customMiddleware } from './custom-middleware';
 
 export const customModel = (apiIdentifier: string) => {
   return wrapLanguageModel({
-    model: azure(apiIdentifier),  // Use the Azure client instead of OpenAI
+    model: azure(apiIdentifier, { simulateStreaming: true }),
     middleware: customMiddleware,
   });
 };
